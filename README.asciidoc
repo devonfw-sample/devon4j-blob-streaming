@@ -48,7 +48,7 @@ Disconnected from Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64
 ----
 
 [TIP]
-The default password for `SYS` und `SYSTEM` is 'Oradoc_db1'.
+The default password for `SYS` und `SYSTEM` is `Oradoc_db1`.
 
 === The example application
 
@@ -70,7 +70,7 @@ The implementation is as follows:
 include::core/src/main/java/com/devonfw/example/blobapp/binary/service/impl/rest/BinaryRestServiceImpl.java[tag=getBinaryObjectMultipart]
 ----
 The multipart result contains two parts. The `root` part contains a JSON-encoded `BinaryObjectEto`.
-The actual data is provided as an `InputStream` in the `data` part. The `InputStream` is provided by the link:core/src/main/java/com/devonfw/example/blobapp/binary/dataaccess/api/BinaryObjectEntity.java. The data is mapped as `java.sql.Blob`.
+The actual data is provided as an `InputStream` in the `data` part. The `InputStream` is provided by the link:core/src/main/java/com/devonfw/example/blobapp/binary/dataaccess/api/BinaryObjectEntity.java[BinaryObjectEntity.java]. The data is mapped as `java.sql.Blob`.
 
 ==== Upload
 In link:api/src/main/java/com/devonfw/example/blobapp/binary/service/api/rest/BinaryRestService.java[BinaryRestService.java] `saveBinaryObject` defines the operation to upload a new blob to the DB:
