@@ -1,0 +1,99 @@
+= Blob streaming (example)
+
+This application demonstrates how to stream possibly huge blobs from the database via a rest service.
+The streaming is done complety without copying the data to the applications memory.
+So this approach should be suitable for very large blobs without using to much memory.
+
+The example is implemented with devon4j using a Oracle RDBMS.
+
+== Setup Oracle
+
+To start the provided sample application you need an Oracle RDBMS.
+The easiest way to setup such a database is to use the Oracle container provided by Oracle.
+
+The container is available only after link:https://hub.docker.com/signup[(free) registration] in docker hub.
+
+To start the database run the following commands
+----
+docker login -u <username> 
+docker pull store/oracle/database-enterprise:12.2.0.1
+docker run -d -it --name orablobdb -p 1521:1521 store/oracle/database-enterprise:12.2.0.1
+----
+
+Afterwards you need to create a user for the database:
+----
+docker exec -it orablobdb /bin/bash
+[oracle@bd1c54148ee4 /]$ sqlplus sys as sysdba
+
+SQL*Plus: Release 12.2.0.1.0 Production on Mon Feb 10 09:38:43 2020
+
+Copyright (c) 1982, 2016, Oracle.  All rights reserved.
+
+Enter password: <just hit enter>
+
+Connected to:
+Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64bit Production
+
+SQL> CREATE USER c##blobapp IDENTIFIED BY blobapp;
+GRANT CREATE SESSION TO c##blobapp;
+GRANT CREATE TABLE TO c##blobapp;
+GRANT CREATE SEQUENCE TO c##blobapp;
+GRANT UNLIMITED TABLESPACE TO c##blobapp;
+User created.
+
+...
+
+SQL> exit
+Disconnected from Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64bit Production
+----
+
+[TIP]
+The default password for `SYS` und `SYSTEM` is 'Oradoc_db1'.
+
+=== The example application
+
+The example application is a Spring Boot app.
+The main class is link:core/src/main/java/com/devonfw/example/blobapp/SpringBootApp.java[SpringBootApp.java].
+
+==== Download
+link:api/src/main/java/com/devonfw/example/blobapp/binary/service/api/rest/BinaryRestService.java[BinaryRestService.java] defines the rest service via JAX-RS. `getBinaryObjectMultiPart` defines the operation to actual stream the data from the DB:
+
+[source,java]
+----
+include::api/src/main/java/com/devonfw/example/blobapp/binary/service/api/rest/BinaryRestService.java[tag=getBinaryObjectMultipart]
+----
+Important is the content type defintion `@Produces("multipart/mixed")``
+
+The implementation is as follows:
+[source,java]
+----
+include::core/src/main/java/com/devonfw/example/blobapp/binary/service/impl/rest/BinaryRestServiceImpl.java[tag=getBinaryObjectMultipart]
+----
+The multipart result contains two parts. The `root` part contains a JSON-encoded `BinaryObjectEto`.
+The actual data is provided as an `InputStream` in the `data` part. The `InputStream` is provided by the link:core/src/main/java/com/devonfw/example/blobapp/binary/dataaccess/api/BinaryObjectEntity.java. The data is mapped as `java.sql.Blob`.
+
+==== Upload
+In link:api/src/main/java/com/devonfw/example/blobapp/binary/service/api/rest/BinaryRestService.java[BinaryRestService.java] `saveBinaryObject` defines the operation to upload a new blob to the DB:
+
+[source,java]
+----
+include::api/src/main/java/com/devonfw/example/blobapp/binary/service/api/rest/BinaryRestService.java[tag=saveBinaryObject]
+----
+As you can see to allow streaming a multipart is used. It contains two parts. The `root` part contains a JSON-encoded `BinaryObjectEto`.
+The actual data is provided as an `InputStream` in the `data` part.
+
+To save the stream to the database we implemented a custom Spring Data repository
+[source,java]
+----
+include::core/src/main/java/com/devonfw/example/blobapp/binary/dataaccess/impl/CustomBinaryObjectRepositoryImpl.java[tag=class]
+----
+
+=== Consuming the REST services
+
+link:core/src/test/java/com/devonfw/example/blobapp/binary/service/impl/rest/BinaryServiceTest.java[BinaryServiceTest.java] implementes some simple tests using Apache CXF `WebClient` which demonstrate how to consume the rest services of the example.
+
+If you like to experiment a bit you may use link:core/src/test/java/com/devonfw/example/blobapp/binary/dataaccess/impl/DbTest.java[DbTest.java] to e.g. load a huge blob into your DB.
+
+
+
+
