@@ -34,7 +34,7 @@ public class BinaryRestServiceImpl implements BinaryRestService {
     try {
       return this.binarymanagement.findBinaryObject(id);
     } catch (EmptyResultDataAccessException e) {
-      throw new NotFoundException();
+      throw new NotFoundException(e);
     }
   }
 
