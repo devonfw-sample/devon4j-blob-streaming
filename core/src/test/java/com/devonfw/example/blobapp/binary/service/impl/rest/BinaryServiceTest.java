@@ -135,9 +135,7 @@ public class BinaryServiceTest {
     assertEquals(Status.NO_CONTENT, response3.getStatusInfo().toEnum());
     Response responseGet3 = getClient().type(MediaType.APPLICATION_JSON).path("binaryobject/" + resultEto.getId())
         .get();
-    // Should be Status.NOT_FOUND, see https://github.com/devonfw/devon4j/pull/207
-    // assertEquals(Status.NOT_FOUND, responseGet3.getStatusInfo().toEnum());
-    assertEquals(Status.INTERNAL_SERVER_ERROR, responseGet3.getStatusInfo().toEnum());
+    assertEquals(Status.NOT_FOUND, responseGet3.getStatusInfo().toEnum());
 
   }
 
