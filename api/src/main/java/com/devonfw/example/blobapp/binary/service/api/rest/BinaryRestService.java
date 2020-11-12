@@ -58,12 +58,11 @@ public interface BinaryRestService {
    * @return the {@link BinaryObjectEto}
    * @throws SQLException
    */
-  @Consumes("multipart/mixed")
+  @Consumes("multipart/form-data")
   @POST
   @Path("/binaryobject/")
-  public BinaryObjectEto saveBinaryObject(
-      @Multipart(value = "root", type = MediaType.APPLICATION_JSON) BinaryObjectEto binaryObjectEto,
-      @Multipart(value = "image", type = MediaType.APPLICATION_OCTET_STREAM) InputStream data);
+  public BinaryObjectEto saveBinaryObject(@Multipart("root") BinaryObjectEto binaryObjectEto,
+      @Multipart("image") InputStream data);
   // end::saveBinaryObject[]
 
   /**

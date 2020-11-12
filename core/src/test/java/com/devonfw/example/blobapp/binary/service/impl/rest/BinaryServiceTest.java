@@ -72,7 +72,7 @@ public class BinaryServiceTest {
 
     List<Attachment> attachments = createAttachments(imagePath, eto);
 
-    BinaryObjectEto resultEto = getClient().type("multipart/mixed").accept("application/json").path("binaryobject/")
+    BinaryObjectEto resultEto = getClient().type("multipart/form-data").accept("application/json").path("binaryobject/")
         .post(attachments, BinaryObjectEto.class);
     assertTrue(resultEto.getId() > 0);
     assertEquals(resultEto.getSize(), Files.size(imagePath));
@@ -115,7 +115,7 @@ public class BinaryServiceTest {
 
     List<Attachment> attachments = createAttachments(imagePath, myEto);
 
-    BinaryObjectEto resultEto = getClient().type("multipart/mixed").accept("application/json").path("binaryobject/")
+    BinaryObjectEto resultEto = getClient().type("multipart/form-data").accept("application/json").path("binaryobject/")
         .post(attachments, BinaryObjectEto.class);
     assertTrue(resultEto.getId() > 0);
 
